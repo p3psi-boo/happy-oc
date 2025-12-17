@@ -1,14 +1,12 @@
 import * as React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useRealtimeStatus, useFriendRequests } from '@/sync/storage';
+import { useFriendRequests } from '@/sync/storage';
 import { useVisibleSessionListViewData } from '@/hooks/useVisibleSessionListViewData';
 import { useIsTablet } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { EmptySessionsTablet } from './EmptySessionsTablet';
 import { SessionsList } from './SessionsList';
-import { FABWide } from './FABWide';
-import { VoiceAssistantStatusBar } from './VoiceAssistantStatusBar';
 import { TabBar, TabType } from './TabBar';
 import { InboxView } from './InboxView';
 import { SettingsViewWrapper } from './SettingsViewWrapper';
@@ -70,7 +68,6 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
     const { theme } = useUnistyles();
     const sessionListViewData = useVisibleSessionListViewData();
     const isTablet = useIsTablet();
-    const realtimeStatus = useRealtimeStatus();
     const router = useRouter();
     const friendRequests = useFriendRequests();
     const settings = useSettings();
@@ -147,9 +144,6 @@ export const MainView = React.memo(({ variant }: MainViewProps) => {
     // Regular phone mode with tabs
     return (
         <>
-            {realtimeStatus !== 'disconnected' && (
-                <VoiceAssistantStatusBar variant="full" />
-            )}
             <View style={styles.phoneContainer}>
                 {renderTabContent()}
             </View>

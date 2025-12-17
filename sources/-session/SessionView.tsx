@@ -6,19 +6,15 @@ import { ChatHeaderView } from '@/components/ChatHeaderView';
 import { ChatList } from '@/components/ChatList';
 import { Deferred } from '@/components/Deferred';
 import { EmptyMessages } from '@/components/EmptyMessages';
-import { VoiceAssistantStatusBar } from '@/components/VoiceAssistantStatusBar';
 import { useDraft } from '@/hooks/useDraft';
-import { Modal } from '@/modal';
-import { voiceHooks } from '@/realtime/hooks/voiceHooks';
-import { startRealtimeSession, stopRealtimeSession, updateCurrentSessionId } from '@/realtime/RealtimeSession';
 import { gitStatusSync } from '@/sync/gitStatusSync';
 import { sessionAbort } from '@/sync/ops';
-import { storage, useIsDataReady, useLocalSetting, useRealtimeStatus, useSessionMessages, useSessionUsage, useSetting } from '@/sync/storage';
+import { storage, useIsDataReady, useLocalSetting, useSessionMessages, useSessionUsage, useSetting } from '@/sync/storage';
 import { useSession } from '@/sync/storage';
 import { Session } from '@/sync/storageTypes';
 import { sync } from '@/sync/sync';
 import { t } from '@/text';
-import { tracking, trackMessageSent } from '@/track';
+import { trackMessageSent } from '@/track';
 import { isRunningOnMac } from '@/utils/platform';
 import { useDeviceType, useHeaderHeight, useIsLandscape, useIsTablet } from '@/utils/responsive';
 import { formatPathRelativeToHome, getSessionAvatarId, getSessionName, useSessionStatus } from '@/utils/sessionUtils';
@@ -153,7 +149,6 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
     const isTablet = useIsTablet();
     const headerHeight = useHeaderHeight();
     const [message, setMessage] = React.useState('');
-    const realtimeStatus = useRealtimeStatus();
     const { messages, isLoaded } = useSessionMessages(sessionId);
     const acknowledgedCliVersions = useLocalSetting('acknowledgedCliVersions');
 
@@ -207,51 +202,15 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
         },
     }), []);
 
-
-    // Handle microphone button press - memoized to prevent button flashing
-    const handleMicrophonePress = React.useCallback(async () => {
-        if (realtimeStatus === 'connecting') {
-            return; // Prevent actions during transitions
-        }
-        if (realtimeStatus === 'disconnected' || realtimeStatus === 'error') {
-            try {
-                const initialPrompt = voiceHooks.onVoiceStarted(sessionId);
-                await startRealtimeSession(sessionId, initialPrompt);
-                tracking?.capture('voice_session_started', { sessionId });
-            } catch (error) {
-                console.error('Failed to start realtime session:', error);
-                Modal.alert(t('common.error'), t('errors.voiceSessionFailed'));
-                tracking?.capture('voice_session_error', { error: error instanceof Error ? error.message : 'Unknown error' });
-            }
-        } else if (realtimeStatus === 'connected') {
-            await stopRealtimeSession();
-            tracking?.capture('voice_session_stopped');
-
-            // Notify voice assistant about voice session stop
-            voiceHooks.onVoiceStopped();
-        }
-    }, [realtimeStatus, sessionId]);
-
-    // Memoize mic button state to prevent flashing during chat transitions
-    const micButtonState = useMemo(() => ({
-        onMicPress: handleMicrophonePress,
-        isMicActive: realtimeStatus === 'connected' || realtimeStatus === 'connecting'
-    }), [handleMicrophonePress, realtimeStatus]);
-
     // Trigger session visibility and initialize git status sync
     React.useLayoutEffect(() => {
 
         // Trigger session sync
         sync.onSessionVisible(sessionId);
 
-        // Update realtime session ID if voice is active to ensure messages go to current session
-        if (realtimeStatus === 'connected') {
-            updateCurrentSessionId(sessionId);
-        }
-
         // Initialize git status sync for this session
         gitStatusSync.getSync(sessionId);
-    }, [sessionId, realtimeStatus]);
+    }, [sessionId]);
 
     let content = (
         <>
@@ -297,8 +256,6 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
                     trackMessageSent();
                 }
             }}
-            onMicPress={micButtonState.onMicPress}
-            isMicActive={micButtonState.isMicActive}
             onAbort={() => sessionAbort(sessionId)}
             showAbortButton={sessionStatus.state === 'thinking' || sessionStatus.state === 'waiting'}
             onFileViewerPress={experiments ? () => router.push(`/session/${sessionId}/files`) : undefined}
@@ -325,26 +282,13 @@ function SessionViewLoaded({ sessionId, session }: { sessionId: string, session:
 
     return (
         <>
-            {/* Voice Assistant Status Bar - positioned as overlay at top */}
-            {!isTablet && !(isLandscape && deviceType === 'phone') && realtimeStatus !== 'disconnected' && (
-                <View style={{
-                    position: 'absolute',
-                    top: 0, // Position at top since header is handled by parent
-                    left: 0,
-                    right: 0,
-                    zIndex: 999 // Below header but above content
-                }}>
-                    <VoiceAssistantStatusBar variant="full" />
-                </View>
-            )}
-
             {/* CLI Version Warning Overlay - Subtle centered pill */}
             {shouldShowCliWarning && !(isLandscape && deviceType === 'phone') && (
                 <Pressable
                     onPress={handleDismissCliWarning}
                     style={{
                         position: 'absolute',
-                        top: safeArea.top + headerHeight + ((!isTablet && realtimeStatus !== 'disconnected') ? 48 : 0) + 8, // Position below header and voice bar if present
+                        top: safeArea.top + headerHeight + 8, // Position below header
                         alignSelf: 'center',
                         backgroundColor: '#FFF3CD',
                         borderRadius: 100, // Fully rounded pill
