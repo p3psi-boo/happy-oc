@@ -543,20 +543,20 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
         scheduleRefresh(250)
     }, [applyPartUpdate, cancelRefresh, insertPart, lastEvent, lastEventCounter, props.sessionId, removeMessage, removePart, scheduleRefresh])
 
-    const modeOptions = ['Build', 'Plan'] as const
+const modeOptions = ['Build', 'Plan'] as const
     const [selectedMode, setSelectedMode] = React.useState<'Build' | 'Plan'>('Build')
-    const [selectedModel, setSelectedModel] = React.useState<string>('claude-3-5-sonnet-20241022')
+    const [selectedModel, setSelectedModel] = React.useState<string>('')
     const [availableModels, setAvailableModels] = React.useState<{ id: string; name: string }[]>([])
     const [isModelPickerOpen, setIsModelPickerOpen] = React.useState(false)
 
-    // Load available models
+    // Load available models and default model
     React.useEffect(() => {
         if (!ctx) return
         ;(async () => {
             try {
                 const client = createProjectClient(ctx.server.baseUrl, ctx.project.worktree)
                 const configRes = await client.config.providers({ throwOnError: true })
-                const providersData = (configRes as any).data as { providers: Array<{ id: string; name: string; models: Record<string, { id: string; name: string }> }> }
+                const providersData = (configRes as any).data as { providers: Array<{ id: string; name: string; models: Record<string, { id: string; name: string }> }>, defaultModel?: { providerID: string; modelID: string } }
                 
 const models: { id: string; name: string }[] = []
                 for (const provider of providersData.providers) {
@@ -571,12 +571,20 @@ const models: { id: string; name: string }[] = []
                      models.push({ id: 'openai/gpt-4o', name: 'GPT-4o' })
                  }
                 setAvailableModels(models)
+                
+                // Set default model from server config
+                if (providersData.defaultModel) {
+                    setSelectedModel(`${providersData.defaultModel.providerID}/${providersData.defaultModel.modelID}`)
+                } else if (models.length > 0) {
+                    setSelectedModel(models[0].id)
+                }
             } catch (e) {
                 console.warn('Failed to load models', e)
                  setAvailableModels([
                      { id: 'anthropic/claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
                      { id: 'openai/gpt-4o', name: 'GPT-4o' }
                  ])
+                 setSelectedModel('anthropic/claude-3-5-sonnet-20241022')
             }
         })()
     }, [ctx])
