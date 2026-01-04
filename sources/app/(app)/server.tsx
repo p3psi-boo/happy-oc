@@ -1,6 +1,6 @@
 import React from 'react'
 import { View } from 'react-native'
-import { Stack, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { Item } from '@/components/Item'
 import { ItemGroup } from '@/components/ItemGroup'
@@ -70,14 +70,6 @@ export default React.memo(() => {
 
     return (
         <>
-            <Stack.Screen
-                options={{
-                    headerShown: true,
-                    headerTitle: t('opencode.settings.servers'),
-                    headerBackTitle: t('common.back'),
-                }}
-            />
-
             <ItemList>
                 <ItemGroup title={t('opencode.settings.connection')}>
                     {servers.length === 0 ? (

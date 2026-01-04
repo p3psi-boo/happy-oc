@@ -12,6 +12,8 @@ import { useOpencodeStore } from '@/opencode/store'
 import { createProjectClient } from '@/opencode/client'
 import type { Command, Message, Part, Permission, Session, TextPart, ToolPart } from '@opencode-ai/sdk'
 import { layout } from '@/components/layout'
+import { Modal } from '@/modal'
+import { ModelPickerModal } from '@/modal/components/ModelPickerModal'
 
 const EMPTY_PERMISSIONS: Permission[] = []
 
@@ -545,7 +547,6 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
     const [selectedMode, setSelectedMode] = React.useState<'Build' | 'Plan'>('Build')
     const [selectedModel, setSelectedModel] = React.useState<string>('claude-3-5-sonnet-20241022')
     const [availableModels, setAvailableModels] = React.useState<{ id: string; name: string }[]>([])
-
     const [isModelPickerOpen, setIsModelPickerOpen] = React.useState(false)
 
     // Load available models
@@ -557,13 +558,11 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
                 const configRes = await client.config.providers({ throwOnError: true })
                 const providersData = (configRes as any).data as { providers: Array<{ id: string; name: string; models: Record<string, { id: string; name: string }> }> }
                 
-                const models: { id: string; name: string }[] = []
+const models: { id: string; name: string }[] = []
                 for (const provider of providersData.providers) {
-                    if (provider.id === 'anthropic' || provider.id === 'openai') {
-                         for (const modelKey in provider.models) {
-                            const model = provider.models[modelKey]
-                            models.push({ id: `${provider.id}/${model.id}`, name: model.name || model.id })
-                         }
+                    for (const modelKey in provider.models) {
+                        const model = provider.models[modelKey]
+                        models.push({ id: `${provider.id}/${model.id}`, name: model.name || model.id })
                     }
                 }
                 // Add default if empty or not found, just in case
@@ -627,6 +626,7 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
         const client = createProjectClient(ctx.server.baseUrl, ctx.project.worktree)
         await client.session.abort({ throwOnError: true, path: { id: props.sessionId } })
     }, [ctx, props.sessionId])
+
 
     const connectionIndicator = React.useMemo(() => {
         if (connectionStatus === 'connected') {
@@ -710,14 +710,22 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
 
     return (
         <View style={styles.container}>
-            <Stack.Screen
+<Stack.Screen
                 options={React.useMemo(
                     () => ({
                         headerShown: true,
-                        headerTitle: title,
+                        headerTitle: () => (
+                            <View style={{ alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '600', color: theme.colors.text }}>{title}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
+                                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: connectionIndicator.dotColor, marginRight: 4, opacity: connectionIndicator.isPulsing ? 0.6 : 1 }} />
+                                    <Text style={{ fontSize: 12, color: theme.colors.textSecondary }}>{connectionIndicator.text}</Text>
+                                </View>
+                            </View>
+                        ),
                         headerBackTitle: t('common.back'),
                     }),
-                    [title],
+                    [connectionIndicator.dotColor, connectionIndicator.isPulsing, connectionIndicator.text, theme.colors.text, theme.colors.textSecondary, title],
                 )}
             />
 
@@ -807,7 +815,7 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
                 ) : null}
 
                 <View style={styles.contentContainer}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, paddingHorizontal: 4 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, marginBottom: 8, paddingHorizontal: 16 }}>
                          <View style={{ flexDirection: 'row', backgroundColor: theme.colors.surfacePressed, borderRadius: 8, padding: 2 }}>
                             {modeOptions.map((mode) => (
                                 <Pressable
@@ -836,13 +844,7 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
                         </View>
                         
                         <Pressable 
-                            onPress={() => {
-                                if (availableModels.length > 0) {
-                                    const currentIndex = availableModels.findIndex(m => m.id === selectedModel)
-                                    const nextIndex = (currentIndex + 1) % availableModels.length
-                                    setSelectedModel(availableModels[nextIndex].id)
-                                }
-                            }}
+                            onPress={() => setIsModelPickerOpen(true)}
                             style={{ 
                                 flexDirection: 'row', 
                                 alignItems: 'center', 
@@ -871,6 +873,18 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
                         autocompleteSuggestions={autocompleteSuggestions}
                     />
                 </View>
+                
+                {isModelPickerOpen && (
+                    <ModelPickerModal
+                        models={availableModels}
+                        selectedModelId={selectedModel}
+                        onClose={() => setIsModelPickerOpen(false)}
+                        onSelect={(modelId) => {
+                            setSelectedModel(modelId)
+                            setIsModelPickerOpen(false)
+                        }}
+                    />
+                )}
             </View>
         </View>
     )

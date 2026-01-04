@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Stack, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { View, ActivityIndicator } from 'react-native'
 import { Item } from '@/components/Item'
 import { ItemGroup } from '@/components/ItemGroup'
@@ -22,14 +22,6 @@ export default React.memo(() => {
 
     return (
         <>
-            <Stack.Screen
-                options={{
-                    headerShown: true,
-                    headerTitle: t('opencode.project.selectTitle'),
-                    headerBackTitle: t('common.back'),
-                }}
-            />
-
             <ItemList>
                 <ItemGroup title={t('opencode.project.projects')}>
                     {projects === null ? (
