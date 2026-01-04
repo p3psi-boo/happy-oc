@@ -168,9 +168,11 @@ export const lightTheme = {
         },
 
         // Message View colors
-        userMessageBackground: '#f0eee6',
+        userMessageBackground: '#ccebff',
         userMessageText: '#000000',
+        agentMessageBackground: '#ffffff',
         agentMessageText: '#000000',
+        agentBlockBackground: '#d4bef5',
         agentEventText: '#666666',
 
         // Code/Syntax colors
@@ -375,9 +377,11 @@ export const darkTheme = {
         },
 
         // Message View colors
-        userMessageBackground: '#2C2C2E',
+        userMessageBackground: '#1a4a6e',
         userMessageText: '#FFFFFF',
+        agentMessageBackground: '#2C2C2E',
         agentMessageText: '#FFFFFF',
+        agentBlockBackground: '#3d3b55',
         agentEventText: '#8E8E93',
 
         // Code/Syntax colors (brighter for dark mode)

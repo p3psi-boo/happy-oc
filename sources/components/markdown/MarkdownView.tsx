@@ -412,7 +412,7 @@ const style = StyleSheet.create((theme) => ({
         marginVertical: 8,
     },
     optionItem: {
-        backgroundColor: theme.colors.surfaceHighest,
+        backgroundColor: theme.colors.agentBlockBackground,
         borderRadius: 8,
         paddingHorizontal: 16,
         paddingVertical: 12,

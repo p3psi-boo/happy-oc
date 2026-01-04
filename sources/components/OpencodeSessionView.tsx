@@ -59,6 +59,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginHorizontal: 16,
         marginBottom: 12,
         borderRadius: 16,
+        backgroundColor: theme.colors.agentMessageBackground,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
         alignSelf: 'flex-start',
     },
     toolMessageContainer: {
