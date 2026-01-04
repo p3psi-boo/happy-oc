@@ -9,7 +9,7 @@ import { Modal } from '@/modal'
 import { t } from '@/text'
 import { useUnistyles } from 'react-native-unistyles'
 import { createServerClient } from '@/opencode/client'
-import { validateBaseUrl } from '@/opencode/storage'
+import { validateBaseUrl, type OpencodeServer } from '@/opencode/storage'
 import { useOpencodeStore } from '@/opencode/store'
 
 function deriveServerName(baseUrl: string): string {
@@ -29,12 +29,61 @@ export default React.memo(() => {
     const activeServerId = useOpencodeStore((s) => s.activeServerId)
     const addServer = useOpencodeStore((s) => s.addServer)
     const removeServer = useOpencodeStore((s) => s.removeServer)
+    const updateServer = useOpencodeStore((s) => s.updateServer)
     const setActiveServer = useOpencodeStore((s) => s.setActiveServer)
 
     const validateServer = React.useCallback(async (baseUrl: string) => {
         const client = createServerClient(baseUrl)
         await client.project.list({ throwOnError: true })
     }, [])
+
+const handleEditServerName = React.useCallback(async (server: OpencodeServer) => {
+        const inputName = await Modal.prompt(t('server.renameServer'), server.name || deriveServerName(server.baseUrl), {
+            placeholder: t('server.serverNamePlaceholder'),
+            confirmText: t('common.save'),
+            cancelText: t('common.cancel'),
+        })
+
+        if (inputName === undefined || inputName === null) {
+            return
+        }
+
+        const trimmedName = inputName.trim()
+        if (trimmedName) {
+            await updateServer(server.id, { name: trimmedName })
+        }
+    }, [updateServer])
+
+    const handleServerLongPress = React.useCallback(async (server: OpencodeServer) => {
+        const serverName = server.name || deriveServerName(server.baseUrl)
+
+        Modal.alert(serverName, '', [
+            {
+                text: t('common.rename'),
+                onPress: async () => {
+                    await handleEditServerName(server)
+                }
+            },
+            {
+                text: t('common.delete'),
+                style: 'destructive',
+                onPress: async () => {
+                    const confirmed = await Modal.confirm(
+                        t('common.delete'),
+                        server.baseUrl,
+                        { confirmText: t('common.delete'), destructive: true },
+                    )
+                    if (confirmed) {
+                        await removeServer(server.id)
+                    }
+                }
+            },
+            {
+                text: t('common.cancel'),
+                style: 'cancel'
+            }
+        ])
+    }, [handleEditServerName, removeServer])
 
     const handleAddServer = React.useCallback(async () => {
         const inputUrl = await Modal.prompt(t('opencode.settings.servers'), undefined, {
@@ -85,16 +134,7 @@ export default React.memo(() => {
                                     await setActiveServer(server.id)
                                     router.replace(server.lastProject ? '/' : '/project')
                                 }}
-                                onLongPress={async () => {
-                                    const confirmed = await Modal.confirm(
-                                        t('common.delete'),
-                                        server.baseUrl,
-                                        { confirmText: t('common.delete'), destructive: true },
-                                    )
-                                    if (confirmed) {
-                                        await removeServer(server.id)
-                                    }
-                                }}
+                                onLongPress={() => handleServerLongPress(server)}
                                 rightElement={
                                     server.id === activeServerId ? (
                                         <Ionicons name="checkmark" size={18} color={theme.colors.textSecondary} />

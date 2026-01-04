@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "version": 5,
+      "date": "2026-01-04",
+      "summary": "This update enhances server management with customizable naming, making it easier to identify and organize your development environments.",
+      "changes": [
+        "Added ability to rename servers with custom names for better identification",
+        "Server names are stored locally and persist across app sessions",
+        "Long-press on any server to access rename and delete options",
+        "Improved server list UX with clearer organization and management"
+      ],
+      "rawMarkdown": "## Version 5 - 2026-01-04\n\n\nThis update enhances server management with customizable naming, making it easier to identify and organize your development environments.\n\n- Added ability to rename servers with custom names for better identification\n- Server names are stored locally and persist across app sessions\n- Long-press on any server to access rename and delete options\n- Improved server list UX with clearer organization and management"
+    },
+    {
       "version": 4,
       "date": "2025-09-12",
       "summary": "This release revolutionizes remote development with Codex integration and Daemon Mode, enabling instant AI assistance from anywhere. Start coding sessions with a single tap while maintaining complete control over your development environment.",
@@ -53,5 +65,5 @@
       "rawMarkdown": "## Version 1 - 2025-05-12\n\n\nWelcome to Happy - your secure, encrypted mobile companion for Claude Code. This inaugural release establishes the foundation for private, powerful AI interactions on the go.\n\n- Implemented end-to-end encrypted session management ensuring complete privacy\n- Integrated intelligent voice assistant with natural conversation capabilities\n- Added experimental file manager with syntax highlighting and tree navigation\n- Built seamless real-time synchronization across all your devices\n- Established native support for iOS, Android, and responsive web interfaces"
     }
   ],
-  "latestVersion": 4
+  "latestVersion": 5
 }

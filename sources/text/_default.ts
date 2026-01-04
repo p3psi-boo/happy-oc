@@ -309,7 +309,9 @@ export const en = {
         failedToConnectToServer: 'Failed to connect to server',
         currentlyUsingCustomServer: 'Currently using custom server',
         customServerUrlLabel: 'Custom Server URL',
-        advancedFeatureFooter: "This is an advanced feature. Only change the server if you know what you're doing. You will need to log out and log in again after changing servers."
+        advancedFeatureFooter: "This is an advanced feature. Only change the server if you know what you're doing. You will need to log out and log in again after changing servers.",
+        renameServer: 'Rename Server',
+        serverNamePlaceholder: 'Server name',
     },
 
     sessionInfo: {

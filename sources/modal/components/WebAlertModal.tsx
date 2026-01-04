@@ -69,19 +69,20 @@ export function WebAlertModal({ config, onClose, onConfirm }: WebAlertModalProps
         buttonContainer: {
             borderTopWidth: 1,
             borderTopColor: theme.colors.divider,
-            flexDirection: 'row'
+            flexDirection: 'column'
         },
         button: {
             flex: 1,
             paddingVertical: 11,
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            minHeight: 44
         },
         buttonPressed: {
             backgroundColor: theme.colors.divider
         },
         buttonSeparator: {
-            width: 1,
+            height: 1,
             backgroundColor: theme.colors.divider
         },
         buttonText: {

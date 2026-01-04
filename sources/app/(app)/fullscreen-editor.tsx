@@ -20,26 +20,28 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingTop: runtime.insets.top,
         paddingBottom: 12,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.divider,
     },
+    leftSpacer: {
+        width: 40,
+    },
     title: {
+        flex: 1,
         fontSize: 16,
         fontWeight: '600',
         color: theme.colors.text,
+        textAlign: 'center',
         ...Typography.default('semiBold'),
     },
     closeButton: {
-        flexDirection: 'row',
+        width: 40,
+        height: 40,
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
+        justifyContent: 'center',
     },
     closeButtonText: {
         fontSize: 14,
@@ -94,21 +96,16 @@ export default function FullscreenEditorScreen() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
+                <View style={styles.leftSpacer} />
                 <Text style={styles.title}>{t('agentInput.fullscreenEditor')}</Text>
                 <Pressable
                     onPress={handleClose}
-                    style={({ pressed }) => ({
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        gap: 6,
-                        paddingHorizontal: 12,
-                        paddingVertical: 8,
-                        borderRadius: 8,
-                        opacity: pressed ? 0.7 : 1,
-                    })}
+                    style={({ pressed }) => [
+                        styles.closeButton,
+                        { opacity: pressed ? 0.7 : 1 }
+                    ]}
                 >
-                    <Ionicons name="close" size={20} color={theme.colors.text} />
-                    <Text style={styles.closeButtonText}>{t('agentInput.closeFullscreen')}</Text>
+                    <Ionicons name="close" size={24} color={theme.colors.text} />
                 </Pressable>
             </View>
             <View style={styles.content}>

@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 5 - 2026-01-04
+
+This update enhances server management with customizable naming, making it easier to identify and organize your development environments.
+
+- Added ability to rename servers with custom names for better identification
+- Server names are stored locally and persist across app sessions
+- Long-press on any server to access rename and delete options
+- Improved server list UX with clearer organization and management
+
 ## Version 4 - 2025-09-12
 
 This release revolutionizes remote development with Codex integration and Daemon Mode, enabling instant AI assistance from anywhere. Start coding sessions with a single tap while maintaining complete control over your development environment.
