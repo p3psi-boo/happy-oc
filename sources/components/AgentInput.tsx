@@ -1,6 +1,6 @@
 import { Ionicons, Octicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { View, Platform, useWindowDimensions, ViewStyle, Text, ActivityIndicator, TouchableWithoutFeedback, Image as RNImage, Pressable } from 'react-native';
+import { View, Platform, useWindowDimensions, Text, ActivityIndicator, TouchableWithoutFeedback, Image as RNImage, Pressable } from 'react-native';
 import { Image } from 'expo-image';
 import { layout } from './layout';
 import { MultiTextInput, KeyPressEvent } from './MultiTextInput';
@@ -18,6 +18,8 @@ import { applySuggestion } from './autocomplete/applySuggestion';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Theme } from '@/theme';
 import { t } from '@/text';
+import { setFullscreenEditorCallback, clearFullscreenEditorCallback } from '@/utils/fullscreenEditorCallback';
+import { useRouter } from 'expo-router';
 
 interface AgentInputProps {
     value: string;
@@ -58,9 +60,11 @@ interface AgentInputProps {
     onMachineClick?: () => void;
     currentPath?: string | null;
     onPathClick?: () => void;
-    isSendDisabled?: boolean;
+isSendDisabled?: boolean;
     isSending?: boolean;
     minHeight?: number;
+    autoScrollEnabled?: boolean;
+    onAutoScrollToggle?: (enabled: boolean) => void;
 }
 
 const MAX_CONTEXT_SIZE = 190000;
@@ -284,6 +288,7 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
     const styles = stylesheet;
     const { theme } = useUnistyles();
     const screenWidth = useWindowDimensions().width;
+    const router = useRouter();
 
     const hasText = props.value.trim().length > 0;
     
@@ -943,6 +948,66 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
                             {/* Git Status Badge */}
                             <GitStatusButton sessionId={props.sessionId} onPress={props.onFileViewerPress} />
+
+                            {/* Auto Scroll Toggle Button */}
+                            {props.onAutoScrollToggle && (
+                                <Pressable
+                                    onPress={() => {
+                                        hapticsLight();
+                                        props.onAutoScrollToggle?.(!props.autoScrollEnabled);
+                                    }}
+                                    hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                    style={(p) => ({
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        borderRadius: Platform.select({ default: 16, android: 20 }),
+                                        paddingHorizontal: 8,
+                                        paddingVertical: 6,
+                                        justifyContent: 'center',
+                                        height: 32,
+                                        opacity: p.pressed ? 0.7 : 1,
+                                        backgroundColor: props.autoScrollEnabled ? theme.colors.button.secondary.tint + '20' : 'transparent',
+                                    })}
+                                >
+                                    <Ionicons
+                                        name={props.autoScrollEnabled ? "arrow-down" : "arrow-down-outline"}
+                                        size={16}
+                                        color={props.autoScrollEnabled ? theme.colors.button.secondary.tint : theme.colors.button.secondary.tint}
+                                    />
+                                </Pressable>
+                            )}
+
+                            {/* Fullscreen Editor Button */}
+                            <Pressable
+                                onPress={() => {
+                                    hapticsLight();
+                                    setFullscreenEditorCallback(props.onChangeText);
+                                    router.push({
+                                        pathname: '/fullscreen-editor',
+                                        params: {
+                                            value: props.value,
+                                            placeholder: props.placeholder,
+                                        },
+                                    });
+                                }}
+                                hitSlop={{ top: 5, bottom: 10, left: 0, right: 0 }}
+                                style={(p) => ({
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    borderRadius: Platform.select({ default: 16, android: 20 }),
+                                    paddingHorizontal: 8,
+                                    paddingVertical: 6,
+                                    justifyContent: 'center',
+                                    height: 32,
+                                    opacity: p.pressed ? 0.7 : 1,
+                                })}
+                            >
+                                <Ionicons
+                                    name="expand-outline"
+                                    size={16}
+                                    color={theme.colors.button.secondary.tint}
+                                />
+                            </Pressable>
                         </View>
 
                         {/* Send/Voice button */}

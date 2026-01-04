@@ -83,6 +83,15 @@ export default function RootLayout() {
                     headerBackTitle: t('common.back'),
                 }}
             />
+            <Stack.Screen
+                name="fullscreen-editor"
+                options={{
+                    headerShown: true,
+                    headerTitle: t('agentInput.fullscreenEditor'),
+                    headerBackTitle: t('common.back'),
+                    presentation: 'modal',
+                }}
+            />
         </Stack>
     )
 }

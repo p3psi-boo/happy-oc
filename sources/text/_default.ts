@@ -425,6 +425,8 @@ export const en = {
             folderLabel: 'FOLDER',
         },
         noMachinesAvailable: 'No machines',
+        fullscreenEditor: 'Fullscreen Editor',
+        closeFullscreen: 'Close',
     },
 
     machineLauncher: {

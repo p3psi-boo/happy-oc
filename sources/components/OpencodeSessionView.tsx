@@ -149,10 +149,12 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
     const [messages, setMessages] = React.useState<DisplayMessage[] | null>(null)
     const [input, setInput] = React.useState('')
     const [isSending, setIsSending] = React.useState(false)
+    const [autoScrollEnabled, setAutoScrollEnabled] = React.useState(false)
+    const scrollViewRef = React.useRef<ScrollView>(null)
 
     const ctx = React.useMemo(() => getActiveContext(), [getActiveContext])
 
-    const refresh = React.useCallback(async () => {
+const refresh = React.useCallback(async () => {
         if (!ctx) {
             setMessages([])
             return
@@ -160,70 +162,79 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
 
         const client = createProjectClient(ctx.server.baseUrl, ctx.project.worktree)
 
-        const [sessionRes, messagesRes] = await Promise.all([
-            client.session.get({ throwOnError: true, path: { id: props.sessionId } }),
-            client.session.messages({ throwOnError: true, path: { id: props.sessionId } }),
-        ])
+        try {
+            const [sessionRes, messagesRes] = await Promise.all([
+                client.session.get({ throwOnError: true, path: { id: props.sessionId } }),
+                client.session.messages({ throwOnError: true, path: { id: props.sessionId } }),
+            ])
 
-        const session = (sessionRes as any).data as Session
-        setTitle(session.title || props.sessionId)
+            const session = (sessionRes as any).data as Session
+            setTitle(session.title || props.sessionId)
 
-        const list = (messagesRes as any).data as Array<{ info: Message; parts: Part[] }>
+            const list = (messagesRes as any).data as Array<{ info: Message; parts: Part[] }>
 
-        const mapped: DisplayMessage[] = []
+            const mapped: DisplayMessage[] = []
 
-        for (const entry of list) {
-            const createdAt = toMillis(entry.info.time.created)
+            for (const entry of list) {
+                const createdAt = toMillis(entry.info.time.created)
 
-            if (entry.info.role === 'user') {
-                const text = extractText(entry.parts)
-                if (text.trim().length > 0) {
-                    mapped.push({
-                        id: entry.info.id,
-                        messageId: entry.info.id,
-                        role: 'user',
-                        createdAt,
-                        variant: 'text',
-                        text,
-                    })
+                if (entry.info.role === 'user') {
+                    const text = extractText(entry.parts)
+                    if (text.trim().length > 0) {
+                        mapped.push({
+                            id: entry.info.id,
+                            messageId: entry.info.id,
+                            role: 'user',
+                            createdAt,
+                            variant: 'text',
+                            text,
+                        })
+                    }
+                    continue
                 }
-                continue
-            }
 
-            for (const part of entry.parts) {
-                if (part.type === 'text') {
-                    const text = (part as TextPart).text ?? ''
-                    if (text.length === 0) {
+                for (const part of entry.parts) {
+                    if (part.type === 'text') {
+                        const text = (part as TextPart).text ?? ''
+                        if (text.length === 0) {
+                            continue
+                        }
+                        mapped.push({
+                            id: part.id,
+                            messageId: (part as TextPart).messageID,
+                            role: 'assistant',
+                            createdAt,
+                            variant: 'text',
+                            text,
+                        })
                         continue
                     }
-                    mapped.push({
-                        id: part.id,
-                        messageId: (part as TextPart).messageID,
-                        role: 'assistant',
-                        createdAt,
-                        variant: 'text',
-                        text,
-                    })
-                    continue
-                }
 
-                if (part.type === 'tool') {
-                    mapped.push({
-                        id: part.id,
-                        messageId: (part as ToolPart).messageID,
-                        role: 'assistant',
-                        createdAt,
-                        variant: 'tool',
-                        text: toolPartToMarkdown(part as ToolPart),
-                    })
-                    continue
-                }
+                    if (part.type === 'tool') {
+                        mapped.push({
+                            id: part.id,
+                            messageId: (part as ToolPart).messageID,
+                            role: 'assistant',
+                            createdAt,
+                            variant: 'tool',
+                            text: toolPartToMarkdown(part as ToolPart),
+                        })
+                        continue
+                    }
 
-                // Ignore other part kinds for now
+                    // Ignore other part kinds for now
+                }
             }
-        }
 
-        setMessages(mapped)
+            setMessages(mapped)
+        } catch (e) {
+            if (refreshTimer.current) {
+                clearTimeout(refreshTimer.current)
+            }
+            refreshTimer.current = setTimeout(() => {
+                void refresh()
+            }, 2000)
+        }
     }, [ctx, props.sessionId])
 
     React.useEffect(() => {
@@ -265,6 +276,12 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
             }
         }
     }, [])
+
+    React.useEffect(() => {
+        if (autoScrollEnabled && scrollViewRef.current && messages && messages.length > 0) {
+            scrollViewRef.current.scrollToEnd({ animated: true })
+        }
+    }, [messages, autoScrollEnabled])
 
     const applyPartUpdate = React.useCallback((part: Part, delta?: string) => {
         if (part.type === 'text') {
@@ -736,11 +753,11 @@ const models: { id: string; name: string }[] = []
                         ),
                         headerBackTitle: t('common.back'),
                     }),
-                    [connectionIndicator.dotColor, connectionIndicator.isPulsing, connectionIndicator.text, theme.colors.text, theme.colors.textSecondary, title],
+                    [title, connectionIndicator.dotColor, connectionIndicator.isPulsing, connectionIndicator.text, theme.colors.text, theme.colors.textSecondary],
                 )}
             />
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContent}>
                 <View style={styles.contentContainer}>
                     {(messages ?? []).map((m) => {
                         if (m.role === 'user') {
@@ -871,7 +888,7 @@ const models: { id: string; name: string }[] = []
                         </Pressable>
                     </View>
 
-                    <AgentInput
+<AgentInput
                         placeholder={t('session.inputPlaceholder')}
                         value={input}
                         onChangeText={setInput}
@@ -879,9 +896,10 @@ const models: { id: string; name: string }[] = []
                         isSending={isSending}
                         onAbort={abort}
                         showAbortButton={sessionStatus?.type === 'busy'}
-                        connectionStatus={connectionIndicator}
                         autocompletePrefixes={['/', '@']}
                         autocompleteSuggestions={autocompleteSuggestions}
+                        autoScrollEnabled={autoScrollEnabled}
+                        onAutoScrollToggle={setAutoScrollEnabled}
                     />
                 </View>
                 
