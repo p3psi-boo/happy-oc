@@ -1941,6 +1941,11 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@opencode-ai/sdk@^1.0.224":
+  version "1.0.224"
+  resolved "https://registry.npmmirror.com/@opencode-ai/sdk/-/sdk-1.0.224.tgz#2fffefc90991822bc6e30a59ae0ca353361549a2"
+  integrity sha512-gODyWLDTaz38qISxRdJKsEiFqvJNcFzu4/awoSICIl8j8gx6qDxLsYWVp/ToO4LKXTvHMn8yyZpM3ZEdGhDC+g==
+
 "@peoplesgrocers/seti-ui-file-icons@1.11.3":
   version "1.11.3"
   resolved "https://registry.yarnpkg.com/@peoplesgrocers/seti-ui-file-icons/-/seti-ui-file-icons-1.11.3.tgz#45e5233119e7787d2fa44c4d3d16fc908d985592"

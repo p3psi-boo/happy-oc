@@ -4,7 +4,6 @@ import { Image } from "expo-image";
 import { AvatarSkia } from "./AvatarSkia";
 import { AvatarGradient } from "./AvatarGradient";
 import { AvatarBrutalist } from "./AvatarBrutalist";
-import { useSetting } from '@/sync/storage';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface AvatarProps {
@@ -44,10 +43,7 @@ const styles = StyleSheet.create((theme) => ({
 }));
 
 export const Avatar = React.memo((props: AvatarProps) => {
-    const { flavor, size = 48, imageUrl, thumbhash, ...avatarProps } = props;
-    const avatarStyle = useSetting('avatarStyle');
-    const showFlavorIcons = useSetting('showFlavorIcons');
-    const { theme } = useUnistyles();
+    const { size = 48, imageUrl, thumbhash, ...avatarProps } = props;
 
     // Render custom image if provided
     if (imageUrl) {
@@ -64,85 +60,8 @@ export const Avatar = React.memo((props: AvatarProps) => {
             />
         );
 
-        // Add flavor icon overlay if enabled
-        if (showFlavorIcons && flavor) {
-            const effectiveFlavor = flavor || 'claude';
-            const flavorIcon = flavorIcons[effectiveFlavor as keyof typeof flavorIcons] || flavorIcons.claude;
-            const circleSize = Math.round(size * 0.35);
-            const iconSize = effectiveFlavor === 'codex'
-                ? Math.round(size * 0.25)
-                : effectiveFlavor === 'claude'
-                    ? Math.round(size * 0.28)
-                    : Math.round(size * 0.35);
-
-            return (
-                <View style={[styles.container, { width: size, height: size }]}>
-                    {imageElement}
-                    <View style={[styles.flavorIcon, {
-                        width: circleSize,
-                        height: circleSize,
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }]}>
-                        <Image
-                            source={flavorIcon}
-                            style={{ width: iconSize, height: iconSize }}
-                            contentFit="contain"
-                            tintColor={effectiveFlavor === 'codex' ? theme.colors.text : undefined}
-                        />
-                    </View>
-                </View>
-            );
-        }
-
         return imageElement;
     }
 
-    // Original generated avatar logic
-    // Determine which avatar variant to render
-    let AvatarComponent: React.ComponentType<any>;
-    if (avatarStyle === 'pixelated') {
-        AvatarComponent = AvatarSkia;
-    } else if (avatarStyle === 'brutalist') {
-        AvatarComponent = AvatarBrutalist;
-    } else {
-        AvatarComponent = AvatarGradient;
-    }
-
-    // Determine flavor icon for generated avatars
-    const effectiveFlavor = flavor || 'claude';
-    const flavorIcon = flavorIcons[effectiveFlavor as keyof typeof flavorIcons] || flavorIcons.claude;
-    // Make icons smaller while keeping same circle size
-    // Claude slightly bigger than codex
-    const circleSize = Math.round(size * 0.35);
-    const iconSize = effectiveFlavor === 'codex'
-        ? Math.round(size * 0.25)
-        : effectiveFlavor === 'claude'
-            ? Math.round(size * 0.28)
-            : Math.round(size * 0.35);
-
-    // Only wrap in container if showing flavor icons
-    if (showFlavorIcons) {
-        return (
-            <View style={[styles.container, { width: size, height: size }]}>
-                <AvatarComponent {...avatarProps} size={size} />
-                <View style={[styles.flavorIcon, {
-                    width: circleSize,
-                    height: circleSize,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }]}>
-                    <Image
-                        source={flavorIcon}
-                        style={{ width: iconSize, height: iconSize }}
-                        contentFit="contain"
-                        tintColor={effectiveFlavor === 'codex' ? theme.colors.text : undefined}
-                    />
-                </View>
-            </View>
-        );
-    }
-
-    // Return avatar without wrapper when not showing flavor icons
-    return <AvatarComponent {...avatarProps} size={size} />;
+    return <AvatarGradient {...avatarProps} size={size} />;
 });

@@ -17,16 +17,8 @@ function plural({ count, singular, plural }: { count: number; singular: string; 
 export const pt: TranslationStructure = {
     tabs: {
         // Tab navigation labels
-        inbox: 'Caixa de entrada',
         sessions: 'Terminais',
         settings: 'Configurações',
-    },
-
-    inbox: {
-        // Inbox screen
-        emptyTitle: 'Caixa de entrada vazia',
-        emptyDescription: 'Conecte-se com amigos para começar a compartilhar sessões',
-        updates: 'Atualizações',
     },
 
     common: {
@@ -42,6 +34,7 @@ export const pt: TranslationStructure = {
         create: 'Criar',
         rename: 'Renomear',
         reset: 'Redefinir',
+        delete: 'Excluir',
         logout: 'Sair',
         yes: 'Sim',
         no: 'Não',
@@ -94,6 +87,17 @@ export const pt: TranslationStructure = {
         enterUrlManually: 'Inserir URL manualmente',
     },
 
+    draft: {
+        title: 'Rascunho',
+        fullScreen: 'Editor em tela cheia',
+        placeholder: 'Comece a digitar…',
+        restored: ({ time }: { time: string }) => `Rascunho restaurado (${time})`,
+        draftLoaded: 'Rascunho',
+        draftNew: 'Novo rascunho',
+        discardTitle: 'Descartar rascunho?',
+        discardDescription: 'Isso excluirá o rascunho salvo localmente.',
+    },
+
     settings: {
         title: 'Configurações',
         connectedAccounts: 'Contas conectadas',
@@ -101,7 +105,6 @@ export const pt: TranslationStructure = {
         github: 'GitHub',
         machines: 'Máquinas',
         features: 'Recursos',
-        social: 'Social',
         account: 'Conta',
         accountSubtitle: 'Gerencie os detalhes da sua conta',
         appearance: 'Aparência',
@@ -236,12 +239,7 @@ export const pt: TranslationStructure = {
             `Falha ao desconectar ${service}`,
         connectServiceFailed: ({ service }: { service: string }) =>
             `Falha ao conectar ${service}. Por favor, tente novamente.`,
-        failedToLoadFriends: 'Falha ao carregar lista de amigos',
-        failedToAcceptRequest: 'Falha ao aceitar solicitação de amizade',
-        failedToRejectRequest: 'Falha ao rejeitar solicitação de amizade',
-        failedToRemoveFriend: 'Falha ao remover amigo',
         searchFailed: 'A busca falhou. Por favor, tente novamente.',
-        failedToSendRequest: 'Falha ao enviar solicitação de amizade',
     },
 
     newSession: {
@@ -662,7 +660,6 @@ export const pt: TranslationStructure = {
         linkNewDevice: 'Vincular novo dispositivo', 
         restoreWithSecretKey: 'Restaurar com chave secreta',
         whatsNew: 'Novidades',
-        friends: 'Amigos',
     },
 
     welcome: {
@@ -783,55 +780,36 @@ export const pt: TranslationStructure = {
         createError: 'Falha ao criar artefato. Por favor, tente novamente.',
     },
 
-    friends: {
-        // Friends feature
-        title: 'Amigos',
-        manageFriends: 'Gerencie seus amigos e conexões',
-        searchTitle: 'Buscar amigos',
-        pendingRequests: 'Solicitações de amizade',
-        myFriends: 'Meus amigos',
-        noFriendsYet: 'Você ainda não tem amigos',
-        findFriends: 'Buscar amigos',
-        remove: 'Remover',
-        pendingRequest: 'Pendente',
-        sentOn: ({ date }: { date: string }) => `Enviado em ${date}`,
-        accept: 'Aceitar',
-        reject: 'Rejeitar',
-        addFriend: 'Adicionar amigo',
-        alreadyFriends: 'Já são amigos',
-        requestPending: 'Solicitação pendente',
-        searchInstructions: 'Digite um nome de usuário para buscar amigos',
-        searchPlaceholder: 'Digite o nome de usuário...',
-        searching: 'Buscando...',
-        userNotFound: 'Usuário não encontrado',
-        noUserFound: 'Nenhum usuário encontrado com esse nome',
-        checkUsername: 'Por favor, verifique o nome de usuário e tente novamente',
-        howToFind: 'Como encontrar amigos',
-        findInstructions: 'Procure amigos pelo nome de usuário. Tanto você quanto seu amigo precisam ter o GitHub conectado para enviar solicitações de amizade.',
-        requestSent: 'Solicitação de amizade enviada!',
-        requestAccepted: 'Solicitação de amizade aceita!',
-        requestRejected: 'Solicitação de amizade rejeitada',
-        friendRemoved: 'Amigo removido',
-        confirmRemove: 'Remover amigo',
-        confirmRemoveMessage: 'Tem certeza de que deseja remover este amigo?',
-        cannotAddYourself: 'Você não pode enviar uma solicitação de amizade para si mesmo',
-        bothMustHaveGithub: 'Ambos os usuários devem ter o GitHub conectado para serem amigos',
+    opencode: {
         status: {
-            none: 'Não conectado',
-            requested: 'Solicitação enviada',
-            pending: 'Solicitação pendente',
-            friend: 'Amigos',
-            rejected: 'Rejeitada',
+            busy: 'Trabalhando…',
+            retrying: 'Tentando novamente…',
         },
-        acceptRequest: 'Aceitar solicitação',
-        removeFriend: 'Remover dos amigos',
-        removeFriendConfirm: ({ name }: { name: string }) => `Tem certeza de que deseja remover ${name} dos seus amigos?`,
-        requestSentDescription: ({ name }: { name: string }) => `Sua solicitação de amizade foi enviada para ${name}`,
-        requestFriendship: 'Solicitar amizade',
-        cancelRequest: 'Cancelar solicitação de amizade',
-        cancelRequestConfirm: ({ name }: { name: string }) => `Cancelar sua solicitação de amizade para ${name}?`,
-        denyRequest: 'Recusar solicitação',
-        nowFriendsWith: ({ name }: { name: string }) => `Agora você é amigo de ${name}`,
+        sessions: {
+            untitled: 'Nova sessão',
+            empty: 'Ainda não há sessões neste projeto.',
+            newTitle: 'Nova sessão',
+            newPlaceholder: 'Título da sessão',
+        },
+        project: {
+            selectTitle: 'Selecionar projeto',
+            projects: 'Projetos',
+            noProjects: 'Nenhum projeto encontrado',
+        },
+        settings: {
+            connection: 'Conexão',
+            servers: 'Servidores',
+            addServer: 'Adicionar servidor',
+            serverSelected: 'Servidor ativo selecionado',
+            serverNotSelected: 'Selecione um servidor',
+            project: 'Projeto',
+            projectNotSelected: 'Selecione um projeto',
+        },
+        permissions: {
+            allowOnce: 'Permitir uma vez',
+            allowAlways: 'Permitir sempre',
+            reject: 'Rejeitar',
+        },
     },
 
     usage: {
@@ -848,13 +826,6 @@ export const pt: TranslationStructure = {
         noData: 'Nenhum dado de uso disponível',
     },
 
-    feed: {
-        // Feed notifications for friend requests and acceptances
-        friendRequestFrom: ({ name }: { name: string }) => `${name} enviou-lhe um pedido de amizade`,
-        friendRequestGeneric: 'Novo pedido de amizade',
-        friendAccepted: ({ name }: { name: string }) => `Agora você é amigo de ${name}`,
-        friendAcceptedGeneric: 'Pedido de amizade aceito',
-    }
 } as const;
 
 export type TranslationsPt = typeof pt;

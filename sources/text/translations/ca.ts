@@ -17,16 +17,8 @@ function plural({ count, singular, plural }: { count: number; singular: string; 
 export const ca: TranslationStructure = {
     tabs: {
         // Tab navigation labels
-        inbox: 'Safata',
         sessions: 'Terminals',
         settings: 'Configuració',
-    },
-
-    inbox: {
-        // Inbox screen
-        emptyTitle: 'Safata buida',
-        emptyDescription: 'Connecta\'t amb amics per començar a compartir sessions',
-        updates: 'Actualitzacions',
     },
 
     common: {
@@ -42,6 +34,7 @@ export const ca: TranslationStructure = {
         create: 'Crear',
         rename: 'Reanomena',
         reset: 'Reinicia',
+        delete: 'Elimina',
         logout: 'Tanca la sessió',
         yes: 'Sí',
         no: 'No',
@@ -94,6 +87,17 @@ export const ca: TranslationStructure = {
         enterUrlManually: 'Introdueix l\'URL manualment',
     },
 
+    draft: {
+        title: 'Esborrany',
+        fullScreen: 'Editor a pantalla completa',
+        placeholder: 'Comença a escriure…',
+        restored: ({ time }: { time: string }) => `Esborrany restaurat (${time})`,
+        draftLoaded: 'Esborrany',
+        draftNew: 'Nou esborrany',
+        discardTitle: 'Descartar esborrany?',
+        discardDescription: 'Això eliminarà l’esborrany desat localment.',
+    },
+
     settings: {
         title: 'Configuració',
         connectedAccounts: 'Comptes connectats',
@@ -101,7 +105,6 @@ export const ca: TranslationStructure = {
         github: 'GitHub',
         machines: 'Màquines',
         features: 'Funcions',
-        social: 'Social',
         account: 'Compte',
         accountSubtitle: 'Gestiona els detalls del teu compte',
         appearance: 'Aparença',
@@ -236,12 +239,7 @@ export const ca: TranslationStructure = {
             `Ha fallat la desconnexió de ${service}`,
         connectServiceFailed: ({ service }: { service: string }) =>
             `No s'ha pogut connectar ${service}. Si us plau, torna-ho a provar.`,
-        failedToLoadFriends: 'No s\'ha pogut carregar la llista d\'amics',
-        failedToAcceptRequest: 'No s\'ha pogut acceptar la sol·licitud d\'amistat',
-        failedToRejectRequest: 'No s\'ha pogut rebutjar la sol·licitud d\'amistat',
-        failedToRemoveFriend: 'No s\'ha pogut eliminar l\'amic',
         searchFailed: 'La cerca ha fallat. Si us plau, torna-ho a provar.',
-        failedToSendRequest: 'No s\'ha pogut enviar la sol·licitud d\'amistat',
     },
 
     newSession: {
@@ -662,7 +660,6 @@ export const ca: TranslationStructure = {
         linkNewDevice: 'Enllaça un nou dispositiu', 
         restoreWithSecretKey: 'Restaura amb clau secreta',
         whatsNew: 'Novetats',
-        friends: 'Amics',
     },
 
     welcome: {
@@ -783,55 +780,36 @@ export const ca: TranslationStructure = {
         createError: 'No s\'ha pogut crear l\'artefacte. Si us plau, torna-ho a provar.',
     },
 
-    friends: {
-        // Friends feature
-        title: 'Amics',
-        manageFriends: 'Gestiona els teus amics i connexions',
-        searchTitle: 'Buscar amics',
-        pendingRequests: 'Sol·licituds d\'amistat',
-        myFriends: 'Els meus amics',
-        noFriendsYet: 'Encara no tens amics',
-        findFriends: 'Buscar amics',
-        remove: 'Eliminar',
-        pendingRequest: 'Pendent',
-        sentOn: ({ date }: { date: string }) => `Enviat el ${date}`,
-        accept: 'Acceptar',
-        reject: 'Rebutjar',
-        addFriend: 'Afegir amic',
-        alreadyFriends: 'Ja sou amics',
-        requestPending: 'Sol·licitud pendent',
-        searchInstructions: 'Introdueix un nom d\'usuari per buscar amics',
-        searchPlaceholder: 'Introdueix nom d\'usuari...',
-        searching: 'Buscant...',
-        userNotFound: 'Usuari no trobat',
-        noUserFound: 'No s\'ha trobat cap usuari amb aquest nom',
-        checkUsername: 'Si us plau, verifica el nom d\'usuari i torna-ho a provar',
-        howToFind: 'Com trobar amics',
-        findInstructions: 'Cerca amics pel seu nom d\'usuari. Tant tu com el teu amic heu de tenir GitHub connectat per enviar sol·licituds d\'amistat.',
-        requestSent: 'Sol·licitud d\'amistat enviada!',
-        requestAccepted: 'Sol·licitud d\'amistat acceptada!',
-        requestRejected: 'Sol·licitud d\'amistat rebutjada',
-        friendRemoved: 'Amic eliminat',
-        confirmRemove: 'Eliminar amic',
-        confirmRemoveMessage: 'Estàs segur que vols eliminar aquest amic?',
-        cannotAddYourself: 'No pots enviar-te una sol·licitud d\'amistat a tu mateix',
-        bothMustHaveGithub: 'Ambdós usuaris han de tenir GitHub connectat per ser amics',
+    opencode: {
         status: {
-            none: 'No connectat',
-            requested: 'Sol·licitud enviada',
-            pending: 'Sol·licitud pendent',
-            friend: 'Amics',
-            rejected: 'Rebutjada',
+            busy: 'Treballant…',
+            retrying: 'Reintentant…',
         },
-        acceptRequest: 'Acceptar sol·licitud',
-        removeFriend: 'Eliminar dels amics',
-        removeFriendConfirm: ({ name }: { name: string }) => `Estàs segur que vols eliminar ${name} dels teus amics?`,
-        requestSentDescription: ({ name }: { name: string }) => `La teva sol·licitud d\'amistat ha estat enviada a ${name}`,
-        requestFriendship: 'Sol·licitar amistat',
-        cancelRequest: 'Cancel·lar sol·licitud d\'amistat',
-        cancelRequestConfirm: ({ name }: { name: string }) => `Cancel·lar la teva sol·licitud d\'amistat a ${name}?`,
-        denyRequest: 'Rebutjar sol·licitud',
-        nowFriendsWith: ({ name }: { name: string }) => `Ara ets amic de ${name}`,
+        sessions: {
+            untitled: 'Sessió nova',
+            empty: 'Encara no hi ha sessions en aquest projecte.',
+            newTitle: 'Sessió nova',
+            newPlaceholder: 'Títol de la sessió',
+        },
+        project: {
+            selectTitle: 'Selecciona projecte',
+            projects: 'Projectes',
+            noProjects: 'No s’han trobat projectes',
+        },
+        settings: {
+            connection: 'Connexió',
+            servers: 'Servidors',
+            addServer: 'Afegeix un servidor',
+            serverSelected: 'Servidor actiu seleccionat',
+            serverNotSelected: 'Selecciona un servidor',
+            project: 'Projecte',
+            projectNotSelected: 'Selecciona un projecte',
+        },
+        permissions: {
+            allowOnce: 'Permet un cop',
+            allowAlways: 'Permet sempre',
+            reject: 'Rebutja',
+        },
     },
 
     usage: {
@@ -848,13 +826,6 @@ export const ca: TranslationStructure = {
         noData: "No hi ha dades d'ús disponibles",
     },
 
-    feed: {
-        // Feed notifications for friend requests and acceptances
-        friendRequestFrom: ({ name }: { name: string }) => `${name} t'ha enviat una sol·licitud d'amistat`,
-        friendRequestGeneric: 'Nova sol·licitud d\'amistat',
-        friendAccepted: ({ name }: { name: string }) => `Ara ets amic de ${name}`,
-        friendAcceptedGeneric: 'Sol·licitud d\'amistat acceptada',
-    }
 } as const;
 
 export type TranslationsCa = typeof ca;

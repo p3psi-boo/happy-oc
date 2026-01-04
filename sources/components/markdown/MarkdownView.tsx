@@ -7,9 +7,6 @@ import { Text } from '../StyledText';
 import { Typography } from '@/constants/Typography';
 import { SimpleSyntaxHighlighter } from '../SimpleSyntaxHighlighter';
 import { Modal } from '@/modal';
-import { useLocalSetting } from '@/sync/storage';
-import { storeTempText } from '@/sync/persistence';
-import { useRouter } from 'expo-router';
 import * as Clipboard from 'expo-clipboard';
 import { MermaidRenderer } from './MermaidRenderer';
 import { t } from '@/text';
@@ -25,24 +22,8 @@ export const MarkdownView = React.memo((props: {
 }) => {
     const blocks = React.useMemo(() => parseMarkdown(props.markdown), [props.markdown]);
     
-    // Backwards compatibility: The original version just returned the view, wrapping the list of blocks.
-    // It made each of the individual text elements selectable. When we enable the markdownCopyV2 feature,
-    // we disable the selectable property on individual text segments on mobile only. Instead, the long press
-    // will be handled by a wrapper Pressable. If we don't disable the selectable property, then you will see
-    // the native copy modal come up at the same time as the long press handler is fired.
-    const markdownCopyV2 = useLocalSetting('markdownCopyV2');
-    const selectable = Platform.OS === 'web' || !markdownCopyV2;
-    const router = useRouter();
+    const selectable = true;
 
-    const handleLongPress = React.useCallback(() => {
-        try {
-            const textId = storeTempText(props.markdown);
-            router.push(`/text-selection?textId=${textId}`);
-        } catch (error) {
-            console.error('Error storing text for selection:', error);
-            Modal.alert('Error', 'Failed to open text selection. Please try again.');
-        }
-    }, [props.markdown, router]);
     const renderContent = () => {
         return (
             <View style={{ width: '100%' }}>
@@ -73,15 +54,7 @@ export const MarkdownView = React.memo((props: {
         );
     }
 
-    if (!markdownCopyV2) {
-        return renderContent();
-    }
-    
-    if (Platform.OS === 'web') {
-        return renderContent();
-    }
-    
-    return <Pressable style={{ width: '100%' }} onLongPress={handleLongPress} delayLongPress={500}>{renderContent()}</Pressable>;
+    return renderContent();
 });
 
 function RenderTextBlock(props: { spans: MarkdownSpan[], first: boolean, last: boolean, selectable: boolean }) {
@@ -150,7 +123,7 @@ function RenderCodeBlock(props: { content: string, language: string | null, firs
                     selectable={props.selectable}
                 />
             </ScrollView>
-            <View style={[style.copyButtonWrapper, isHovered && style.copyButtonWrapperVisible]} className='copy-button-wrapper'>
+            <View style={[style.copyButtonWrapper, isHovered && style.copyButtonWrapperVisible]}>
                 <Pressable
                     style={style.copyButton}
                     onPress={copyCode}

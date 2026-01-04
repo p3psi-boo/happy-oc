@@ -1,6 +1,5 @@
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 import { darkTheme, lightTheme } from './theme';
-import { loadThemePreference } from './sync/persistence';
 import { Appearance } from 'react-native';
 import * as SystemUI from 'expo-system-ui';
 
@@ -23,7 +22,7 @@ const breakpoints = {
 };
 
 // Load theme preference from storage
-const themePreference = loadThemePreference();
+const themePreference: 'light' | 'dark' | 'adaptive' = 'adaptive';
 
 // Determine initial theme and adaptive settings
 const getInitialTheme = (): 'light' | 'dark' => {

@@ -6,7 +6,6 @@ import { pt } from './translations/pt';
 import { ca } from './translations/ca';
 import { zhHans } from './translations/zh-Hans';
 import * as Localization from 'expo-localization';
-import { loadSettings } from '@/sync/persistence';
 import { type SupportedLanguage, SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES, DEFAULT_LANGUAGE } from './_all';
 
 /**
@@ -88,14 +87,7 @@ const _typeCheck: Record<SupportedLanguage, TranslationStructure> = translations
 
 let currentLanguage: SupportedLanguage = DEFAULT_LANGUAGE;
 
-// Read from settings
-let settings = loadSettings();
 let found = false;
-if (settings.settings.preferredLanguage && settings.settings.preferredLanguage in translations) {
-    currentLanguage = settings.settings.preferredLanguage as SupportedLanguage;
-    found = true;
-    console.log(`[i18n] Using preferred language: ${currentLanguage}`);
-}
 
 // Read from device
 if (!found) {

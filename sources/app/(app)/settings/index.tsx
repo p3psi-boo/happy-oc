@@ -1,3 +1,3 @@
-import { SettingsView } from "@/components/SettingsView";
+import { OpencodeSettingsView } from '@/components/OpencodeSettingsView'
 
-export default SettingsView;
+export default OpencodeSettingsView

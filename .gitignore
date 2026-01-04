@@ -45,3 +45,4 @@ yarn-error.*
 CLAUDE.local.md
 
 .dev/worktree/*
+.ace-tool/

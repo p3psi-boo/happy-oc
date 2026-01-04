@@ -15,12 +15,9 @@ import { AgentInputAutocomplete } from './AgentInputAutocomplete';
 import { FloatingOverlay } from './FloatingOverlay';
 import { TextInputState, MultiTextInputHandle } from './MultiTextInput';
 import { applySuggestion } from './autocomplete/applySuggestion';
-import { GitStatusBadge, useHasMeaningfulGitStatus } from './GitStatusBadge';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useSetting } from '@/sync/storage';
 import { Theme } from '@/theme';
 import { t } from '@/text';
-import { Metadata } from '@/sync/storageTypes';
 
 interface AgentInputProps {
     value: string;
@@ -35,7 +32,7 @@ interface AgentInputProps {
     onPermissionModeChange?: (mode: PermissionMode) => void;
     modelMode?: ModelMode;
     onModelModeChange?: (mode: ModelMode) => void;
-    metadata?: Metadata | null;
+    metadata?: { flavor?: string | null } | null;
     onAbort?: () => void | Promise<void>;
     showAbortButton?: boolean;
     connectionStatus?: {
@@ -1022,7 +1019,6 @@ export const AgentInput = React.memo(React.forwardRef<MultiTextInputHandle, Agen
 
 // Git Status Button Component
 function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?: () => void }) {
-    const hasMeaningfulGitStatus = useHasMeaningfulGitStatus(sessionId || '');
     const styles = stylesheet;
     const { theme } = useUnistyles();
 
@@ -1049,15 +1045,7 @@ function GitStatusButton({ sessionId, onPress }: { sessionId?: string, onPress?:
                 onPress?.();
             }}
         >
-            {hasMeaningfulGitStatus ? (
-                <GitStatusBadge sessionId={sessionId} />
-            ) : (
-                <Octicons
-                    name="git-branch"
-                    size={16}
-                    color={theme.colors.button.secondary.tint}
-                />
-            )}
+            <Octicons name="git-branch" size={16} color={theme.colors.button.secondary.tint} />
         </Pressable>
     );
 }
