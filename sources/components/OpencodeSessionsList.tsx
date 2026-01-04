@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { Text } from '@/components/StyledText'
-import { Avatar } from '@/components/Avatar'
 import { useRouter } from 'expo-router'
 import { StyleSheet, useUnistyles } from 'react-native-unistyles'
 import { Typography } from '@/constants/Typography'
@@ -17,7 +16,27 @@ type SessionRow = {
     statusColor: string
     statusDotColor: string
     isPulsing: boolean
-    avatarId: string
+    createdAt: number
+    updatedAt: number
+}
+
+function formatRelativeTime(timestamp: number): string {
+    const now = Date.now()
+    const diff = now - timestamp
+    const seconds = Math.floor(diff / 1000)
+    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(minutes / 60)
+    const days = Math.floor(hours / 24)
+
+    if (seconds < 60) {
+        return t('time.justNow')
+    } else if (minutes < 60) {
+        return t('time.minutesAgo', { count: minutes })
+    } else if (hours < 24) {
+        return t('time.hoursAgo', { count: hours })
+    } else {
+        return t('time.daysAgo', { count: days })
+    }
 }
 
 const stylesheet = StyleSheet.create((theme) => ({
@@ -33,10 +52,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         maxWidth: layout.maxWidth,
     },
     sessionItem: {
-        height: 88,
+        minHeight: 72,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
+        paddingVertical: 12,
         backgroundColor: theme.colors.surface,
         marginHorizontal: 16,
         marginBottom: 1,
@@ -44,13 +64,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     sessionContent: {
         flex: 1,
-        marginLeft: 16,
         justifyContent: 'center',
     },
     sessionTitle: {
         fontSize: 15,
         fontWeight: '500',
-        flex: 1,
         color: theme.colors.text,
         ...Typography.default('semiBold'),
     },
@@ -68,6 +86,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 12,
         fontWeight: '500',
         lineHeight: 16,
+        ...Typography.default(),
+    },
+    timeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    timeText: {
+        fontSize: 12,
+        color: theme.colors.textSecondary,
         ...Typography.default(),
     },
 }))
@@ -96,7 +123,7 @@ function getStatusLabel(
         return { text: status.message || t('status.error'), color: '#FF3B30', dotColor: '#FF3B30', pulsing: false }
     }
 
-    return { text: t('status.online'), color: '#34C759', dotColor: '#34C759', pulsing: false }
+    return { text: '', color: 'transparent', dotColor: 'transparent', pulsing: false }
 }
 
 export const OpencodeSessionsList = React.memo(() => {
@@ -121,7 +148,8 @@ export const OpencodeSessionsList = React.memo(() => {
                 statusColor: status.color,
                 statusDotColor: status.dotColor,
                 isPulsing: status.pulsing,
-                avatarId: `${session.directory}`,
+                createdAt: session.createdAt,
+                updatedAt: session.updatedAt,
             }
         })
     }, [sessions])
@@ -135,19 +163,26 @@ export const OpencodeSessionsList = React.memo(() => {
                         router.push(`/session/${item.id}`)
                     }}
                 >
-                    <Avatar id={item.avatarId} size={48} monochrome={false} />
                     <View style={styles.sessionContent}>
-                        <Text style={styles.sessionTitle} numberOfLines={1}>
+                        <Text style={styles.sessionTitle}>
                             {item.title}
                         </Text>
                         <Text style={styles.sessionSubtitle} numberOfLines={1}>
                             {item.subtitle}
                         </Text>
-                        <View style={styles.statusRow}>
-                            <Text style={[styles.statusText, { color: item.statusColor }]} numberOfLines={1}>
-                                {item.statusText}
-                            </Text>
-                        </View>
+                        {item.statusText ? (
+                            <View style={styles.statusRow}>
+                                <Text style={[styles.statusText, { color: item.statusColor }]} numberOfLines={1}>
+                                    {item.statusText}
+                                </Text>
+                            </View>
+                        ) : (
+                            <View style={styles.timeRow}>
+                                <Text style={styles.timeText}>
+                                    {formatRelativeTime(item.updatedAt)}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </Pressable>
             )
