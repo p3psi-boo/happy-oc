@@ -72,6 +72,8 @@ export interface OpencodeStoreState {
 
     pendingPermissions: Record<string, Permission[]>
 
+    lspServers: Record<string, { name: string; status: string }>
+
     reloadServers: () => void
 
     addServer: (fields: { baseUrl: string; name?: string }) => Promise<void>
@@ -111,6 +113,7 @@ export const useOpencodeStore = create<OpencodeStoreState>()((set, get) => {
         lastEvent: null,
         lastEventCounter: 0,
         pendingPermissions: {},
+        lspServers: {},
 
         reloadServers: () => {
             const nextServers = getServers()
@@ -457,6 +460,23 @@ export const useOpencodeStore = create<OpencodeStoreState>()((set, get) => {
                     if (now - lastSessionRefreshAt > SESSION_REFRESH_THROTTLE_MS) {
                         void get().refreshSessions()
                     }
+                }
+
+                if (event.type === 'lsp.updated') {
+                    const servers = event.properties as any
+                    if (servers && typeof servers === 'object') {
+                        set((state) => {
+                            const lspServers: Record<string, { name: string; status: string }> = {}
+                            for (const [name, status] of Object.entries(servers)) {
+                                lspServers[name] = {
+                                    name,
+                                    status: (status as any)?.enabled ? 'connected' : 'disabled',
+                                }
+                            }
+                            return { lspServers }
+                        })
+                    }
+                    return
                 }
             }
 

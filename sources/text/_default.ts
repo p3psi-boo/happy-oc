@@ -287,7 +287,13 @@ export const en = {
     },
 
     session: {
+        // Used by Session screen (components/OpencodeSessionView.tsx)
         inputPlaceholder: 'Type a message ...',
+        sessionInfoTitle: 'Session Information',
+        projectInfo: 'Project Information',
+        lspServers: 'LSP Servers',
+        noLspServers: 'No LSP servers active',
+        noContext: 'No active context',
     },
 
     commandPalette: {

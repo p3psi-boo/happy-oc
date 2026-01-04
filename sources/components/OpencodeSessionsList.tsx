@@ -59,7 +59,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: 12,
         backgroundColor: theme.colors.surface,
         marginHorizontal: 16,
-        marginBottom: 1,
+        marginBottom: 8,
         borderRadius: 12,
     },
     sessionContent: {

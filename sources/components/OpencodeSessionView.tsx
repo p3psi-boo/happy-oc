@@ -12,8 +12,9 @@ import { useOpencodeStore } from '@/opencode/store'
 import { createProjectClient } from '@/opencode/client'
 import type { Command, Message, Part, Permission, Session, TextPart, ToolPart } from '@opencode-ai/sdk'
 import { layout } from '@/components/layout'
-import { Modal } from '@/modal'
 import { ModelPickerModal } from '@/modal/components/ModelPickerModal'
+import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 
 const EMPTY_PERMISSIONS: Permission[] = []
 
@@ -136,6 +137,7 @@ function toolPartToMarkdown(part: ToolPart): string {
 export const OpencodeSessionView = React.memo((props: { sessionId: string }) => {
     const { theme } = useUnistyles()
     const styles = stylesheet
+    const router = useRouter()
 
     const getActiveContext = useOpencodeStore((s) => s.getActiveContext)
     const lastEvent = useOpencodeStore((s) => s.lastEvent)
@@ -154,6 +156,12 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
     const [isSending, setIsSending] = React.useState(false)
     const [autoScrollEnabled, setAutoScrollEnabled] = React.useState(false)
     const scrollViewRef = React.useRef<ScrollView>(null)
+
+    const lspServers = useOpencodeStore((s) => s.lspServers)
+
+    const handleShowInfo = React.useCallback(() => {
+        router.push(`/session/${props.sessionId}/info`)
+    }, [router, props.sessionId])
 
     const ctx = React.useMemo(() => getActiveContext(), [getActiveContext])
 
@@ -741,7 +749,7 @@ const models: { id: string; name: string }[] = []
 
     return (
         <View style={styles.container}>
-<Stack.Screen
+            <Stack.Screen
                 options={React.useMemo(
                     () => ({
                         headerShown: true,
@@ -755,8 +763,17 @@ const models: { id: string; name: string }[] = []
                             </View>
                         ),
                         headerBackTitle: t('common.back'),
+                        headerRight: () => (
+                            <Pressable
+                                onPress={handleShowInfo}
+                                hitSlop={15}
+                                style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                <Ionicons name="information-circle-outline" size={24} color={theme.colors.header.tint} />
+                            </Pressable>
+                        ),
                     }),
-                    [title, connectionIndicator.dotColor, connectionIndicator.isPulsing, connectionIndicator.text, theme.colors.text, theme.colors.textSecondary],
+                    [title, connectionIndicator.dotColor, connectionIndicator.isPulsing, connectionIndicator.text, theme.colors.text, theme.colors.textSecondary, theme.colors.header.tint, handleShowInfo],
                 )}
             />
 
