@@ -2,7 +2,6 @@ import * as React from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { Text } from '@/components/StyledText'
 import { Avatar } from '@/components/Avatar'
-import { StatusDot } from '@/components/StatusDot'
 import { useRouter } from 'expo-router'
 import { StyleSheet, useUnistyles } from 'react-native-unistyles'
 import { Typography } from '@/constants/Typography'
@@ -65,13 +64,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    statusDotContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 16,
-        marginTop: 2,
-        marginRight: 4,
-    },
     statusText: {
         fontSize: 12,
         fontWeight: '500',
@@ -94,6 +86,14 @@ function getStatusLabel(
 
     if (status.type === 'retry') {
         return { text: t('opencode.status.retrying'), color: '#FF9500', dotColor: '#FF9500', pulsing: true }
+    }
+
+    if (status.type === 'offline') {
+        return { text: t('status.offline'), color: '#FF9500', dotColor: '#FF9500', pulsing: false }
+    }
+
+    if (status.type === 'error') {
+        return { text: status.message || t('status.error'), color: '#FF3B30', dotColor: '#FF3B30', pulsing: false }
     }
 
     return { text: t('status.online'), color: '#34C759', dotColor: '#34C759', pulsing: false }
@@ -144,9 +144,6 @@ export const OpencodeSessionsList = React.memo(() => {
                             {item.subtitle}
                         </Text>
                         <View style={styles.statusRow}>
-                            <View style={styles.statusDotContainer}>
-                                <StatusDot color={item.statusDotColor} isPulsing={item.isPulsing} />
-                            </View>
                             <Text style={[styles.statusText, { color: item.statusColor }]} numberOfLines={1}>
                                 {item.statusText}
                             </Text>

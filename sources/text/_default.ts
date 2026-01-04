@@ -68,6 +68,7 @@ export const en = {
         error: 'error',
         online: 'online',
         offline: 'offline',
+        working: 'working',
         lastSeen: ({ time }: { time: string }) => `last seen ${time}`,
         permissionRequired: 'permission required',
         activeNow: 'Active now',

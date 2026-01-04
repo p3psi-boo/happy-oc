@@ -629,6 +629,9 @@ const models: { id: string; name: string }[] = []
 
 
     const connectionIndicator = React.useMemo(() => {
+        if (sessionStatus?.type === 'busy') {
+            return { text: t('status.working'), color: '#007AFF', dotColor: '#007AFF', isPulsing: true }
+        }
         if (connectionStatus === 'connected') {
             return { text: t('status.connected'), color: '#34C759', dotColor: '#34C759', isPulsing: false }
         }
@@ -639,7 +642,7 @@ const models: { id: string; name: string }[] = []
             return { text: t('status.error'), color: '#FF3B30', dotColor: '#FF3B30', isPulsing: false }
         }
         return { text: t('status.disconnected'), color: '#FF9500', dotColor: '#FF9500', isPulsing: false }
-    }, [connectionStatus])
+    }, [connectionStatus, sessionStatus])
 
     const autocompleteSuggestions = React.useCallback(
         async (query: string) => {
@@ -716,7 +719,7 @@ const models: { id: string; name: string }[] = []
                         headerShown: true,
                         headerTitle: () => (
                             <View style={{ alignItems: 'flex-start' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '600', color: theme.colors.text }}>{title}</Text>
+                                <Text numberOfLines={1} ellipsizeMode="tail" style={{ fontSize: 17, fontWeight: '600', color: theme.colors.text }}>{title}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 2 }}>
                                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: connectionIndicator.dotColor, marginRight: 4, opacity: connectionIndicator.isPulsing ? 0.6 : 1 }} />
                                     <Text style={{ fontSize: 12, color: theme.colors.textSecondary }}>{connectionIndicator.text}</Text>

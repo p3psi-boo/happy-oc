@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { ActivityIndicator, Pressable, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, View } from 'react-native'
+import { Text } from '@/components/StyledText'
 import { StyleSheet, useUnistyles } from 'react-native-unistyles'
 import { Header } from '@/components/navigation/Header'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import { StatusDot } from '@/components/StatusDot'
 import { Typography } from '@/constants/Typography'
 import { t } from '@/text'
 import { useOpencodeStore } from '@/opencode/store'
@@ -51,53 +51,20 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.textSecondary,
         ...Typography.default(),
     },
-    statusContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: -2,
-    },
-    statusDot: {
-        marginRight: 4,
-    },
-    statusText: {
-        fontSize: 12,
-        fontWeight: '500',
-        lineHeight: 16,
-        ...Typography.default(),
-    },
 }))
 
 function HeaderTitle() {
     const styles = stylesheet
-    const connectionStatus = useOpencodeStore((s) => s.connectionStatus)
     const activeProject = useOpencodeStore((s) => s.activeProject)
-
-    const connection = React.useMemo(() => {
-        switch (connectionStatus) {
-            case 'connected':
-                return { text: t('status.connected'), color: '#34C759', pulsing: false }
-            case 'connecting':
-                return { text: t('status.connecting'), color: '#007AFF', pulsing: true }
-            case 'error':
-                return { text: t('status.error'), color: '#FF3B30', pulsing: false }
-            case 'disconnected':
-            default:
-                return { text: t('status.disconnected'), color: '#FF9500', pulsing: false }
-        }
-    }, [connectionStatus])
 
     return (
         <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>{t('tabs.session')}</Text>
+            <Text style={styles.titleText} numberOfLines={1}>{t('tabs.session')}</Text>
             {activeProject?.worktree ? (
                 <Text style={styles.subtitleText} numberOfLines={1}>
                     {activeProject.worktree}
                 </Text>
             ) : null}
-            <View style={styles.statusContainer}>
-                <StatusDot color={connection.color} isPulsing={connection.pulsing} size={6} style={styles.statusDot} />
-                <Text style={[styles.statusText, { color: connection.color }]}>{connection.text}</Text>
-            </View>
         </View>
     )
 }
