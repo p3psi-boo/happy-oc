@@ -834,6 +834,10 @@ export const pl: TranslationStructure = {
             allowAlways: 'Zawsze zezwalaj',
             reject: 'Odrzuć',
         },
+        mode: {
+            build: 'Budowanie',
+            plan: 'Planowanie',
+        },
     },
 
     usage: {

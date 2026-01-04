@@ -811,6 +811,10 @@ export const es: TranslationStructure = {
             allowAlways: 'Permitir siempre',
             reject: 'Rechazar',
         },
+        mode: {
+            build: 'Construir',
+            plan: 'Planificar',
+        },
     },
 
     usage: {

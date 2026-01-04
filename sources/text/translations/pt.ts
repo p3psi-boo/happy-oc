@@ -810,6 +810,10 @@ export const pt: TranslationStructure = {
             allowAlways: 'Permitir sempre',
             reject: 'Rejeitar',
         },
+        mode: {
+            build: 'Construir',
+            plan: 'Planejar',
+        },
     },
 
     usage: {

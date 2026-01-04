@@ -833,6 +833,10 @@ export const ru: TranslationStructure = {
             allowAlways: 'Всегда разрешать',
             reject: 'Отклонить',
         },
+        mode: {
+            build: 'Сборка',
+            plan: 'План',
+        },
     },
 
     usage: {

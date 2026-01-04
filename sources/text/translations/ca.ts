@@ -810,6 +810,10 @@ export const ca: TranslationStructure = {
             allowAlways: 'Permet sempre',
             reject: 'Rebutja',
         },
+        mode: {
+            build: 'Construir',
+            plan: 'Planificar',
+        },
     },
 
     usage: {

@@ -812,6 +812,10 @@ export const zhHans: TranslationStructure = {
             allowAlways: '始终允许',
             reject: '拒绝',
         },
+        mode: {
+            build: '构建',
+            plan: '计划',
+        },
     },
 
     usage: {

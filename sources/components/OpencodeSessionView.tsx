@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { ScrollView, Text, View } from 'react-native'
+import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Typography } from '@/constants/Typography'
 import { Stack } from 'expo-router'
 import { StyleSheet, useUnistyles } from 'react-native-unistyles'
 import { MarkdownView } from '@/components/markdown/MarkdownView'
@@ -11,6 +12,8 @@ import { useOpencodeStore } from '@/opencode/store'
 import { createProjectClient } from '@/opencode/client'
 import type { Command, Message, Part, Permission, Session, TextPart, ToolPart } from '@opencode-ai/sdk'
 import { layout } from '@/components/layout'
+
+const EMPTY_PERMISSIONS: Permission[] = []
 
 type DisplayMessage = {
     id: string
@@ -133,7 +136,8 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
     const lastEvent = useOpencodeStore((s) => s.lastEvent)
     const lastEventCounter = useOpencodeStore((s) => s.lastEventCounter)
 
-    const pendingPermissions = useOpencodeStore((s) => s.pendingPermissions[props.sessionId] ?? [])
+    const pendingPermissionsFromStore = useOpencodeStore((s) => s.pendingPermissions[props.sessionId])
+    const pendingPermissions = pendingPermissionsFromStore ?? EMPTY_PERMISSIONS
     const replyPermission = useOpencodeStore((s) => s.replyPermission)
 
     const connectionStatus = useOpencodeStore((s) => s.connectionStatus)
@@ -537,6 +541,48 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
         scheduleRefresh(250)
     }, [applyPartUpdate, cancelRefresh, insertPart, lastEvent, lastEventCounter, props.sessionId, removeMessage, removePart, scheduleRefresh])
 
+    const modeOptions = ['Build', 'Plan'] as const
+    const [selectedMode, setSelectedMode] = React.useState<'Build' | 'Plan'>('Build')
+    const [selectedModel, setSelectedModel] = React.useState<string>('claude-3-5-sonnet-20241022')
+    const [availableModels, setAvailableModels] = React.useState<{ id: string; name: string }[]>([])
+
+    const [isModelPickerOpen, setIsModelPickerOpen] = React.useState(false)
+
+    // Load available models
+    React.useEffect(() => {
+        if (!ctx) return
+        ;(async () => {
+            try {
+                const client = createProjectClient(ctx.server.baseUrl, ctx.project.worktree)
+                const configRes = await client.config.providers({ throwOnError: true })
+                const providersData = (configRes as any).data as { providers: Array<{ id: string; name: string; models: Record<string, { id: string; name: string }> }> }
+                
+                const models: { id: string; name: string }[] = []
+                for (const provider of providersData.providers) {
+                    if (provider.id === 'anthropic' || provider.id === 'openai') {
+                         for (const modelKey in provider.models) {
+                            const model = provider.models[modelKey]
+                            models.push({ id: `${provider.id}/${model.id}`, name: model.name || model.id })
+                         }
+                    }
+                }
+                // Add default if empty or not found, just in case
+                 if (models.length === 0) {
+                     models.push({ id: 'anthropic/claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' })
+                     models.push({ id: 'openai/gpt-4o', name: 'GPT-4o' })
+                 }
+                setAvailableModels(models)
+            } catch (e) {
+                console.warn('Failed to load models', e)
+                 setAvailableModels([
+                     { id: 'anthropic/claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet' },
+                     { id: 'openai/gpt-4o', name: 'GPT-4o' }
+                 ])
+            }
+        })()
+    }, [ctx])
+
+
     const send = React.useCallback(async () => {
         if (!ctx || !input.trim() || isSending) {
             return
@@ -545,18 +591,34 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
         setIsSending(true)
         try {
             const client = createProjectClient(ctx.server.baseUrl, ctx.project.worktree)
+            
+            // Parse model selection
+            let providerID = 'anthropic'
+            let modelID = 'claude-3-5-sonnet-20241022'
+            
+            if (selectedModel.includes('/')) {
+                const parts = selectedModel.split('/')
+                providerID = parts[0]
+                modelID = parts.slice(1).join('/')
+            }
+
             await client.session.prompt({
                 throwOnError: true,
                 path: { id: props.sessionId },
                 body: {
                     parts: [{ type: 'text', text: input.trim() }],
+                    agent: selectedMode === 'Plan' ? 'plan' : 'build',
+                    model: {
+                        providerID,
+                        modelID
+                    }
                 },
             })
             setInput('')
         } finally {
             setIsSending(false)
         }
-    }, [ctx, input, isSending, props.sessionId])
+    }, [ctx, input, isSending, props.sessionId, selectedMode, selectedModel])
 
     const abort = React.useCallback(async () => {
         if (!ctx) {
@@ -649,11 +711,14 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
     return (
         <View style={styles.container}>
             <Stack.Screen
-                options={{
-                    headerShown: true,
-                    headerTitle: title,
-                    headerBackTitle: t('common.back'),
-                }}
+                options={React.useMemo(
+                    () => ({
+                        headerShown: true,
+                        headerTitle: title,
+                        headerBackTitle: t('common.back'),
+                    }),
+                    [title],
+                )}
             />
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -742,6 +807,57 @@ export const OpencodeSessionView = React.memo((props: { sessionId: string }) => 
                 ) : null}
 
                 <View style={styles.contentContainer}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8, paddingHorizontal: 4 }}>
+                         <View style={{ flexDirection: 'row', backgroundColor: theme.colors.surfacePressed, borderRadius: 8, padding: 2 }}>
+                            {modeOptions.map((mode) => (
+                                <Pressable
+                                    key={mode}
+                                    onPress={() => setSelectedMode(mode as any)}
+                                    style={{
+                                        paddingHorizontal: 12,
+                                        paddingVertical: 6,
+                                        borderRadius: 6,
+                                        backgroundColor: selectedMode === mode ? theme.colors.surface : 'transparent',
+                                        shadowColor: selectedMode === mode ? theme.colors.shadow.color : 'transparent',
+                                        shadowOpacity: selectedMode === mode ? 0.1 : 0,
+                                        shadowRadius: 2,
+                                        elevation: selectedMode === mode ? 1 : 0,
+                                    }}
+                                >
+                                    <Text style={{ 
+                                        ...Typography.default('semiBold'), 
+                                        fontSize: 13,
+                                        color: selectedMode === mode ? theme.colors.text : theme.colors.textSecondary 
+                                    }}>
+                                        {mode === 'Build' ? t('opencode.mode.build') : t('opencode.mode.plan')}
+                                    </Text>
+                                </Pressable>
+                            ))}
+                        </View>
+                        
+                        <Pressable 
+                            onPress={() => {
+                                if (availableModels.length > 0) {
+                                    const currentIndex = availableModels.findIndex(m => m.id === selectedModel)
+                                    const nextIndex = (currentIndex + 1) % availableModels.length
+                                    setSelectedModel(availableModels[nextIndex].id)
+                                }
+                            }}
+                            style={{ 
+                                flexDirection: 'row', 
+                                alignItems: 'center', 
+                                backgroundColor: theme.colors.surfacePressed, 
+                                borderRadius: 8, 
+                                paddingHorizontal: 12, 
+                                paddingVertical: 6 
+                            }}
+                        >
+                            <Text style={{ ...Typography.default('regular'), fontSize: 13, color: theme.colors.textSecondary }}>
+                                {availableModels.find(m => m.id === selectedModel)?.name || selectedModel}
+                            </Text>
+                        </Pressable>
+                    </View>
+
                     <AgentInput
                         placeholder={t('session.inputPlaceholder')}
                         value={input}

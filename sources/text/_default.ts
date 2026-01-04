@@ -811,6 +811,10 @@ export const en = {
             allowAlways: 'Always allow',
             reject: 'Reject',
         },
+        mode: {
+            build: 'Build',
+            plan: 'Plan',
+        },
     },
 
     usage: {
