@@ -4,6 +4,12 @@ import { StyleSheet } from 'react-native-unistyles'
 import { TabBar, TabType } from '@/components/TabBar'
 import { OpencodeSessionsListWrapper } from '@/components/OpencodeSessionsListWrapper'
 import { OpencodeSettingsView } from '@/components/OpencodeSettingsView'
+import { ItemList } from '@/components/ItemList'
+import { ItemGroup } from '@/components/ItemGroup'
+import { RoundButton } from '@/components/RoundButton'
+import { t } from '@/text'
+import { useRouter } from 'expo-router'
+import { useOpencodeStore } from '@/opencode/store'
 
 interface MainViewProps {
     variant: 'phone' | 'sidebar'
@@ -24,18 +30,47 @@ const styles = StyleSheet.create(() => ({
 }))
 
 export const MainView = React.memo(({ variant }: MainViewProps) => {
-
-    const [activeTab, setActiveTab] = React.useState<TabType>('sessions')
+    const router = useRouter()
+    const [activeTab, setActiveTab] = React.useState<TabType>('session')
+    const activeProject = useOpencodeStore((s) => s.activeProject)
+    const activeServerId = useOpencodeStore((s) => s.activeServerId)
 
     const renderTabContent = React.useCallback(() => {
         switch (activeTab) {
-            case 'settings':
+            case 'servers':
                 return <OpencodeSettingsView />
-            case 'sessions':
+            case 'project':
+                if (!activeServerId) {
+                    return (
+                        <ItemList>
+                            <ItemGroup>
+                                <View style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
+                                    <RoundButton
+                                        title={t('opencode.settings.serverNotSelected')}
+                                        onPress={() => router.push('/server')}
+                                    />
+                                </View>
+                            </ItemGroup>
+                        </ItemList>
+                    )
+                }
+                return (
+                    <ItemList>
+                        <ItemGroup title={t('opencode.project.projects')}>
+                            <View style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
+                                <RoundButton
+                                    title={activeProject?.worktree || t('opencode.settings.projectNotSelected')}
+                                    onPress={() => router.push('/project')}
+                                />
+                            </View>
+                        </ItemGroup>
+                    </ItemList>
+                )
+            case 'session':
             default:
                 return <OpencodeSessionsListWrapper />
         }
-    }, [activeTab])
+    }, [activeTab, activeServerId, activeProject, router])
 
     if (variant === 'sidebar') {
         return (

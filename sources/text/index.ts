@@ -1,10 +1,4 @@
 import { en, type Translations, type TranslationStructure } from './_default';
-import { ru } from './translations/ru';
-import { pl } from './translations/pl';
-import { es } from './translations/es';
-import { pt } from './translations/pt';
-import { ca } from './translations/ca';
-import { zhHans } from './translations/zh-Hans';
 import * as Localization from 'expo-localization';
 import { type SupportedLanguage, SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES, DEFAULT_LANGUAGE } from './_all';
 
@@ -70,12 +64,6 @@ export { SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGE_CODES, DEFAULT_LANGUAGE, getLan
  */
 const translations: Record<SupportedLanguage, TranslationStructure> = {
     en,
-    ru, // TypeScript will enforce that ru matches the TranslationStructure type exactly
-    pl, // TypeScript will enforce that pl matches the TranslationStructure type exactly
-    es, // TypeScript will enforce that es matches the TranslationStructure type exactly
-    pt, // TypeScript will enforce that pt matches the TranslationStructure type exactly
-    ca, // TypeScript will enforce that ca matches the TranslationStructure type exactly
-    'zh-Hans': zhHans, // TypeScript will enforce that zh matches the TranslationStructure type exactly
 };
 
 // Compile-time check: ensure all supported languages have translations
@@ -95,31 +83,7 @@ if (!found) {
     console.log(`[i18n] Device locales:`, locales.map(l => l.languageCode));
     for (let l of locales) {
         if (l.languageCode) {
-            // Expo added special handling for Chinese variants using script code https://github.com/expo/expo/pull/34984
-            if (l.languageCode === 'zh') {
-                let chineseVariant: string | null = null;
-                
-                // We only have translations for simplified Chinese right now, but looking for help with traditional Chinese.
-                if (l.languageScriptCode === 'Hans') {
-                    chineseVariant = 'zh-Hans';
-                // } else if (l.languageScriptCode === 'Hant') {
-                //     chineseVariant = 'zh-Hant';
-                }
-                
-                console.log(`[i18n] Chinese script code: ${l.languageScriptCode} -> ${chineseVariant}`);
-                
-                if (chineseVariant && chineseVariant in translations) {
-                    currentLanguage = chineseVariant as SupportedLanguage;
-                    console.log(`[i18n] Using Chinese variant: ${currentLanguage}`);
-                    break;
-                }
-                
-                currentLanguage = 'zh-Hans';
-                console.log(`[i18n] Falling back to simplified Chinese: zh-Hans`);
-                break;
-            }
-            
-            // Direct match for non-Chinese languages
+            // Direct match for languages
             if (l.languageCode in translations) {
                 currentLanguage = l.languageCode as SupportedLanguage;
                 console.log(`[i18n] Using device locale: ${currentLanguage}`);
@@ -140,15 +104,15 @@ console.log(`[i18n] Final language: ${currentLanguage}`);
  * 
  * @example
  * // Simple constants (no parameters)
- * t('common.cancel')                    // "Cancel" or "Отмена"
- * t('settings.title')                   // "Settings" or "Настройки"
+ * t('common.cancel')                    // "Cancel"
+ * t('settings.title')                   // "Settings"
  * 
  * // Functions with required object parameters
- * t('common.welcome', { name: 'Steve' })           // "Welcome, Steve!" or "Добро пожаловать, Steve!"
+ * t('common.welcome', { name: 'Steve' })           // "Welcome, Steve!"
  * t('errors.fieldError', { field: 'Email', reason: 'Invalid' })
  * 
  * // Complex parameters
- * t('sessionInfo.agentState')           // "Agent State" or "Состояние агента"
+ * t('sessionInfo.agentState')           // "Agent State"
  */
 export function t<K extends TranslationKey>(
     key: K,

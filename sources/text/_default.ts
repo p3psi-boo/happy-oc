@@ -16,9 +16,9 @@ function plural({ count, singular, plural }: { count: number; singular: string; 
 
 export const en = {
     tabs: {
-        // Tab navigation labels
-        sessions: 'Terminals',
-        settings: 'Settings',
+        session: 'Session',
+        project: 'Project',
+        servers: 'Servers',
     },
 
     common: {

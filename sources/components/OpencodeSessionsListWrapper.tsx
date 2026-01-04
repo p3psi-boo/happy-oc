@@ -88,7 +88,7 @@ function HeaderTitle() {
 
     return (
         <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>{t('tabs.sessions')}</Text>
+            <Text style={styles.titleText}>{t('tabs.session')}</Text>
             {activeProject?.worktree ? (
                 <Text style={styles.subtitleText} numberOfLines={1}>
                     {activeProject.worktree}

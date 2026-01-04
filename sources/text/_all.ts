@@ -12,7 +12,7 @@
 /**
  * Supported language codes
  */
-export type SupportedLanguage = 'en' | 'ru' | 'pl' | 'es' | 'pt' | 'ca' | 'zh-Hans';
+export type SupportedLanguage = 'en';
 
 /**
  * Language metadata interface
@@ -31,36 +31,6 @@ export const SUPPORTED_LANGUAGES: Record<SupportedLanguage, LanguageInfo> = {
         code: 'en',
         nativeName: 'English',
         englishName: 'English'
-    },
-    ru: {
-        code: 'ru', 
-        nativeName: 'Русский',
-        englishName: 'Russian'
-    },
-    pl: {
-        code: 'pl',
-        nativeName: 'Polski', 
-        englishName: 'Polish'
-    },
-    es: {
-        code: 'es',
-        nativeName: 'Español',
-        englishName: 'Spanish'
-    },
-    pt: {
-        code: 'pt',
-        nativeName: 'Português',
-        englishName: 'Portuguese'
-    },
-    ca: {
-        code: 'ca',
-        nativeName: 'Català',
-        englishName: 'Catalan'
-    },
-    'zh-Hans': {
-        code: 'zh-Hans',
-        nativeName: '中文(简体)',
-        englishName: 'Chinese (Simplified)'
     }
 } as const;
 
