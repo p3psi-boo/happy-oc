@@ -1,25 +1,25 @@
 import * as React from 'react';
 
 export function useAsyncCommand(command: () => Promise<void>) {
-    const [state, setState] = React.useState(false);
-    const stateRef = React.useRef(state);
+    const stateRef = React.useRef(false);
+    const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
+    
     const execute = async () => {
-
         // Guard
         if (stateRef.current) {
             return;
         }
         stateRef.current = true;
-        setState(true);
+        forceUpdate();
 
         // Execution
         try {
             await command();
         } finally {
             stateRef.current = false;
-            setState(false);
+            forceUpdate();
         }
     };
 
-    return [state, execute] as const;
+    return [stateRef.current, execute] as const;
 }

@@ -62,22 +62,26 @@ export class InvalidateSync {
 
 
     private _doSync = async () => {
-        await backoff(async () => {
+        while (true) {
+            await backoff(async () => {
+                if (this._stopped) {
+                    return;
+                }
+                await this._command();
+            });
             if (this._stopped) {
+                this._notifyPendings();
                 return;
             }
-            await this._command();
-        });
-        if (this._stopped) {
-            this._notifyPendings();
-            return;
-        }
-        if (this._invalidatedDouble) {
-            this._invalidatedDouble = false;
-            this._doSync();
-        } else {
-            this._invalidated = false;
-            this._notifyPendings();
+            if (this._invalidatedDouble) {
+                this._invalidatedDouble = false;
+                // Continue the loop to process the pending invalidation
+                continue;
+            } else {
+                this._invalidated = false;
+                this._notifyPendings();
+                break;
+            }
         }
     }
 }

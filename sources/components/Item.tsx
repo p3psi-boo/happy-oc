@@ -204,6 +204,22 @@ export const Item = React.memo<ItemProps>((props) => {
     const titleColor = destructive ? styles.titleDestructive : (selected ? styles.titleSelected : styles.titleNormal);
     const containerPadding = subtitle ? styles.containerWithSubtitle : styles.containerWithoutSubtitle;
     
+    // Calculate effective subtitle lines
+    const effectiveSubtitleLines = React.useMemo(() => {
+        if (!subtitle) return undefined;
+        if (subtitleLines !== undefined) {
+            return subtitleLines <= 0 ? undefined : subtitleLines;
+        }
+        return (typeof subtitle === 'string' && subtitle.indexOf('\n') !== -1) ? undefined : 1;
+    }, [subtitle, subtitleLines]);
+    
+    // Calculate divider margin
+    const dividerMarginLeft = React.useMemo(() => {
+        if (isAndroid || isWeb) return 0;
+        const iconWidth = (icon || leftElement) ? (16 + (isIOS ? 29 : 32) + 15) : 16;
+        return dividerInset + iconWidth;
+    }, [isAndroid, isWeb, isIOS, icon, leftElement, dividerInset]);
+    
     const content = (
         <>
             <View style={[styles.container, containerPadding, style]}>
@@ -222,20 +238,14 @@ export const Item = React.memo<ItemProps>((props) => {
                     >
                         {title}
                     </Text>
-                    {subtitle && (() => {
-                        // Allow multiline when requested or when content contains line breaks
-                        const effectiveLines = subtitleLines !== undefined
-                            ? (subtitleLines <= 0 ? undefined : subtitleLines)
-                            : (typeof subtitle === 'string' && subtitle.indexOf('\n') !== -1 ? undefined : 1);
-                        return (
-                            <Text
-                                style={[styles.subtitle, subtitleStyle]}
-                                numberOfLines={effectiveLines}
-                            >
-                                {subtitle}
-                            </Text>
-                        );
-                    })()}
+                    {subtitle && (
+                        <Text
+                            style={[styles.subtitle, subtitleStyle]}
+                            numberOfLines={effectiveSubtitleLines}
+                        >
+                            {subtitle}
+                        </Text>
+                    )}
                 </View>
 
                 {/* Right Section */}
@@ -276,9 +286,7 @@ export const Item = React.memo<ItemProps>((props) => {
                 <View 
                     style={[
                         styles.divider,
-                        { 
-                            marginLeft: (isAndroid || isWeb) ? 0 : (dividerInset + (icon || leftElement ? (16 + ((isIOS && !isWeb) ? 29 : 32) + 15) : 16))
-                        }
+                        { marginLeft: dividerMarginLeft }
                     ]}
                 />
             )}
